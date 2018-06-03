@@ -8,6 +8,12 @@
     .align 4;
     name:
 
-#endif
+#define END(name) .size name, .- name
+
+#define ENDPROC(name)		\
+    .type name, % function	\
+    END(name)
+
+#endif /*__ASSEMBLER__*/
 
 #endif /*!_KERNEL_LINKAGE_H*/
