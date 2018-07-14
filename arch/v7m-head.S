@@ -3,7 +3,7 @@
 	.syntax unified
         .thumb
 
-	.section ".vector". "a"
+	.section ".vector", "a"
         .long	__early_stack_start__		@ SP main value
         .long	reset				@ Reset
         .long	0				@ NMI
@@ -86,6 +86,65 @@
 	.long	irq_entry			@ IRQ 63
 
 
+/*
+ * mov32 - loads a 32-bit value into a register without a data access
+ */
+        .macro  mov32 rd, imm32
+        movw    \rd, #:lower16:\imm32
+        .if     \imm32 & 0xffff0000
+        movt    \rd, #:upper16:\imm32
+        .endif
+        .endm
 
+ENTRY(reset)
+	ldr		r0, =SystemInit		/* CMSIS system init */
+	blx		r0
+	
+	mov32   r0, 0xe000ed00                  /* SCB_BASE */
 
+        @ switch to Handler_Mode
+        ldr     r1, =__early_stack_end__        /* allocate a temporary vector */
+        str     r1, [r0, #8]                    /* update VTOR */
+        ldr     r2, =0f 
+        orr     r2, #1                          /* set thumb bit */
+        str     r2, [r1, #11 * 4]               /* offset to SVC entry */
+        dsb                                     /* [1] */
+        svc     #0  
+0:
+	@ restore the early vector
+	ldr	r1, =__vector_start__
+	str	r1, [r0, #8]
+	dsb
 
+	@ copy the initialized data sections
+	ldr	r0, = __data_start__
+	ldr	r1, = __rodata_end__
+	ldr	r2, = __data_size__
+	bl	memcpy
+
+        @ zero-fill the non-initialized data sections
+        ldr     r0, =__bss_start__
+        movs    r1, #0
+        ldr     r2, =__bss_size__
+        bl      memst
+
+        @ start_kernel procedure
+        bl      start_kernel
+        b       0b
+0:
+ENDPROC(reset)
+
+ENTRY(irq_entry)
+        push	{lr}
+        ldr     r0, =irq_handler
+        mrs     r1, ipsr
+        sub     r1, #16
+        ldr.w   r0, [r0, r1, lsl #2]
+        blx     r0
+        pop     {pc}
+ENDPROC(irq_entry)
+
+ENTRY(systick)
+        bx      lr
+ENDPROC(systick)
+        .balign 8

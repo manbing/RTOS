@@ -5,13 +5,13 @@
 
 #define ENTRY(name) \
     .globl name;	\
-    .align 4;
+    .align 4;		\
     name:
 
 #define END(name) .size name, .- name
 
 #define ENDPROC(name)		\
-    .type name, % function	\
+    .type name, % function;	\
     END(name)
 
 #endif /*__ASSEMBLER__*/
