@@ -24,3 +24,27 @@ ENTRY(thread_restore)
     pop		{r4-r12, pc}
 ENDPROC(thread_restore)
 ENDPROC(switch_to)
+
+        .macro fault_handler f
+        push    {r4-r11}
+        mov     r0, sp
+        mov     r2, lr
+        mrs     r1, psp
+        b       \f
+        .endm
+
+ENTRY(hardf)
+        fault_handler hardfault
+ENDPROC(hardf)
+
+ENTRY(memf)
+        fault_handler memmanage
+ENDPROC(memf)
+
+ENTRY(busf)
+        fault_handler busfault
+ENDPROC(busf)
+
+ENTRY(usgf)
+        fault_handler usagefault
+ENDPROC(usgf)

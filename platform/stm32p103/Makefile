@@ -6,8 +6,13 @@ RAMSZ = 64k
 
 CFLAGS += \
     -Iplatform/stm32p103 \
+    -I$(CMSIS)/util \
+    -I$(CMSIS)/arm/TARGET_CORTEX_M \
+    -I$(CMSIS)/arm/TARGET_CORTEX_M/TOOLCHAIN_GCC \
+    -I$(CMSIS)/TARGET_STM//TARGET_STM32F1/device \
+    -I$(CMSIS)/TARGET_STM//TARGET_STM32F1/TARGET_NUCLEO_F103RB/device
 
 
-
-CSRC += \
+## SystemInit()
+CSRC += $(CMSIS)/TARGET_STM/TARGET_STM32F1/TARGET_NUCLEO_F103RB/device/system_clock.c
 

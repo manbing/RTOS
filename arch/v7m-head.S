@@ -126,7 +126,7 @@ ENTRY(reset)
         ldr     r0, =__bss_start__
         movs    r1, #0
         ldr     r2, =__bss_size__
-        bl      memst
+        bl      memset
 
         @ start_kernel procedure
         bl      start_kernel

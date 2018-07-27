@@ -1,4 +1,4 @@
-OUTPUT_FORMAT("elf32_littlearm")
+OUTPUT_FORMAT("elf32-littlearm")
 OUTPUT_ARCH(arm)
 
 #define RAMORG 0x20000000
@@ -34,4 +34,47 @@ SECTIONS
         *(.rodata*)
         PROVIDE(__rodata_end__ = .);
     } > rom
+
+    .data : AT(__rodata_end__) {
+	    PROVIDE(__data_start__ = .);
+	    *(.data*)
+	    PROVIDE(__data_edn__ = .);
+    } > ram
+    PROVIDE(__data_size__ = SIZEOF(.data));
+
+    .bss : {
+            PROVIDE(__bss_start__ = .);
+            *(.bss*)
+            *(COMMON)
+            PROVIDE(__bss_end__ = .);
+    } > ram
+    PROVIDE(__bss_size__ = SIZEOF(.bss));
+
+    .heap BLOCK(32) : {
+            PROVIDE(__heap_start__ = .);
+            . += 4k;
+            PROVIDE(__heap_end__ = .);
+    } > ram
+    PROVIDE(__heap_size__ = SIZEOF(.heap));
+
+    .pgmem RAMORG + RAMSZ - 32k : {
+            PROVIDE(__pgmem_start__ = .);
+            . += 26k;
+            PROVIDE(__early_stack_end__ = .);
+            . += 2k;
+            PROVIDE(__early_stack_start__ = .);
+            PROVIDE(__pgmem_end__ = .);
+    } > ram
+    PROVIDE(__pgmem_size__ = SIZEOF(.pgmem));
+
+    .mtdram : {
+            PROVIDE(__mtdram_start__ = .);
+            . += 4k;
+    } > ram
+    PROVIDE(__mtdram_size__ = SIZEOF(.mtdram));
+
+    /DISCARD/ : {
+            *(.ARM.exidx)
+            *(.ARM.attributes)
+    }
 }

@@ -26,3 +26,11 @@ $(NAME).elf: $(OBJS)
 %.lds: %.lds.S
 	$(VECHO) "  HOSTCC\t\t$@\n"
 	$(Q) $(HOSTCC) -E -P -Iinclude -DROMSZ=$(ROMSZ) -DRAMSZ=$(RAMSZ) -o $@ $<
+
+kernel/syscall.c: include/kernel/syscalls.h
+	$(VECHO) "  GEN\t\t$@\n"
+	$(Q)$(PYTHON) scripts/gen-syscalls.py --source > $@
+
+include/kernel/syscalls.h:
+	$(VECHO) "  GEN\t\t$@\n"
+	$(Q)$(PYTHON) scripts/gen-syscalls.py --header > $@

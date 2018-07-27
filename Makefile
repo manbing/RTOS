@@ -7,7 +7,10 @@ include platform/$(PLAT)/Makefile
 
 # arch-specific
 SSRC += arch/v7m-head.S arch/v7m-entry.S arch/v7m-svcall.S
-#CSRC += arch/v7m-faults.c
+CSRC += arch/v7m-faults.c
+CSRC += kernel/syscall.c
+CSRC += \
+        $(wildcard kernel/*.c)
 
 OBJS += $(SSRC:.S=.o) $(CSRC:.c=.o)
 OBJS := $(sort $(OBJS))
@@ -28,6 +31,7 @@ clean:
 	find $(CMSIS) -name "*.o" -type f -delete
 	rm -f $(NAME).map $(NAME).lds
 	rm -f $(NAME).elf $(NAME).bin
-#rm -f include/kernel/syscalls.h
-#rm -f kernel/syscall.c
+# Remove GEN files
+	rm -f include/kernel/syscalls.h
+	rm -f kernel/syscall.c
 	rm -f fs/version

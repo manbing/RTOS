@@ -26,7 +26,8 @@ CFLAGS += \
 CFLAGS += \
 
 LDFLAGS += \
-           -Wl,-Map=$(NAME).map -Wl,-Trtos.lds -Wl,--gc-sections
+           -Wl,-Map=$(NAME).map -Wl,-Trtos.lds -Wl,--gc-sections \
+           -nostartfiles
 
 CFLAGS  += -mthumb -mcpu=$(CPU)
 LDFLAGS += -mthumb -march=$(ARCH)
