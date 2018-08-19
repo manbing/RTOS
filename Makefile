@@ -10,7 +10,9 @@ SSRC += arch/v7m-head.S arch/v7m-entry.S arch/v7m-svcall.S
 CSRC += arch/v7m-faults.c
 CSRC += kernel/syscall.c
 CSRC += \
-        $(wildcard kernel/*.c)
+        $(wildcard kernel/*.c) \
+        $(wildcard kernel/mm/*.c) \
+        libc/piko/stubs.c
 
 OBJS += $(SSRC:.S=.o) $(CSRC:.c=.o)
 OBJS := $(sort $(OBJS))

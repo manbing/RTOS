@@ -1,3 +1,7 @@
+#include "stm32-uart.h"
+
+#define STM32_USART_MAX 3
+
 void uart_init(void)
 {
         struct stm32_uart_port ports[STM32_USART_MAX] = {
@@ -5,9 +9,7 @@ void uart_init(void)
                 /* [1] USART2 */
                 [1] = {
                         .gpio_tx = GPIOA,
-                        .gpio_rx = GPIOA,
-                
-                
+                        .gpio_rx = GPIOA, 
                 },
         };
 }

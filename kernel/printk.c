@@ -2,6 +2,8 @@
 #include <stdarg.h>
 #include <stdio.h>
 
+#include "platform.h"
+
 #define VSNPRINTF_BUF_SIZE 256
 
 static char vsnprintf_buf[VSNPRINTF_BUF_SIZE];

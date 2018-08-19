@@ -48,3 +48,14 @@ ENDPROC(busf)
 ENTRY(usgf)
         fault_handler usagefault
 ENDPROC(usgf)
+
+    /* void v7m_semihost_exit(int status); */
+ENTRY(v7m_semihost_exit)
+    tst r0, r0
+    ite     eq
+    ldreq   r1, =0x20026    /* [a] */
+    movne   r1, #0
+    mov     r0, #0x18       /* [b] */
+    bkpt    #0xab
+0:  b       0b
+ENDPROC(v7m_semihost_exit)

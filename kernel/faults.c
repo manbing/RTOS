@@ -1,6 +1,6 @@
 #include <kernel/thread.h>
 #include <kernel/kernel.h>
-#include <platform.h>
+#include "platform.h"
 
 void dump_frame(struct kernel_context_regs *noscratch,
                 struct thread_context_regs *scratch,
