@@ -1,7 +1,12 @@
+#include <stdbool.h>
+
 #include <kernel/kernel.h>
 #include <kernel/thread.h>
 #include <kernel/mm/page.h>
 #include <kernel/sched.h>
+#include <kernel/task.h>
+#include <kernel/errno-base.h>
+#include <linux/list.h>
 
 static struct kernel_context_regs *alloc_interrupt_stack(void)
 {
@@ -11,6 +16,19 @@ static struct kernel_context_regs *alloc_interrupt_stack(void)
     memp = alloc_pagpes(size_to_page_order(INTR_STACK_SIZE));
     if (!memp)
         return NULL;
+}
+
+static struct thread_info *find_thread_by_id(int id)
+{
+    struct thread_info *tp;
+    CURRENT_TASK_INFO(curr_task);
+
+    list_for_each_entry(tp, &curr_task->thread_head, ti_list) {
+        if (tp->ti_id == id)
+            return tp;
+    }
+
+    return NULL;
 }
 
 void thread_exit(void *retval)
@@ -74,4 +92,36 @@ int sys_pthread_create(pthread_t *thread,
                         void *arg)
 {
     return 0;
+}
+
+int thread_join(pthread_t thread, void **retval)
+{
+    struct thread_info *other;
+
+    other = find_thread_by_id(thread);
+
+    if (!other) /* No thread with the ID thread could be found. */
+        return -ESRCH;
+
+    if (other->ti_detached == true)
+        return -EINVAL; /* thread is not a joinable thread. */
+
+    if (other->ti_joinable == false) {
+        CURRENT_THREAD_INFO(curr_thread);
+
+        if (other->ti_joining)
+            return -EINVAL; /* Another thread is already waiting tp join with this thread. */
+
+        other->ti_joining = curr_thread;
+        sched_elect(SCHED_OPT_NONE);
+    }
+
+    *retval = other->ti_retval;
+
+    return 0;
+}
+
+int sys_pthread_join(pthread_t thread, void **retval)
+{
+    return thread_join(thread, retval);
 }
