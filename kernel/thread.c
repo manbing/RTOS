@@ -125,3 +125,18 @@ int sys_pthread_join(pthread_t thread, void **retval)
 {
     return thread_join(thread, retval);
 }
+
+static int thread_detach(pthread_t thread)
+{
+    struct thread_info *thread_info;
+
+    thread_info = find_thread_by_id(thread);
+    thread_info->ti_detached = true;
+
+    return 0;
+}
+
+int sys_pthread_detach(pthread_t thread)
+{
+    return thread_detach(thread);
+}

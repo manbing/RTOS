@@ -1,6 +1,15 @@
 #ifndef __LIST_H__
 #define __LIST_H__
 
+#include <linux/compiler.h>
+
+#define LIST_HEAD_INIT(name)	\
+	{			\
+            &(name), &(name)	\
+        }
+
+#define LIST_HEAD(name) struct list_head name = LIST_HEAD_INIT(name)
+
 /**
  * list entry - get the struct for this entry
  * @ptr:	the &struct list_head pointer.
@@ -38,5 +47,33 @@
     for (pos = list_first_entry(head, __typeof__(*pos), member);	\
          &pos->member != (head); pos = list_next_entry(pos, member))
 
+/*
+ * Insert a new entry between two known consecutive entries.
+ * 
+ * This is only for internal list manipulation where we know
+ * thre prev/next entries already!
+ */
+static inline void __list_add(struct list_head *new,
+        		      struct list_head *prev,
+                              struct list_head *next)
+{
+    next->prev = new;
+    new->next = next;
+    new->prev = prev;
+    WRITE_ONCE(prev->next, new);
+}
+
+/*
+ * list_add_tail - add a new entry
+ * @new: new entry to be added
+ * @head: list head to add it before
+ *
+ * Insert a new entry before the specified head.
+ * This is useful for implementing queues.
+ */
+static inline void list_add_tail(struct list_head *new, struct list_head *head)
+{
+    __list_add(new, head->prev, head);
+}
 
 #endif /* !__LIST_H__ */
